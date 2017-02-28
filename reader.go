@@ -6,6 +6,8 @@ import (
 	"net/http"
 )
 
+type Reader func(*http.Response, interface{}) error
+
 func DefaultReader(resp *http.Response, v interface{}) error {
 	defer resp.Body.Close()
 

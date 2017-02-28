@@ -11,7 +11,7 @@ type RestClient struct {
 	Host           string
 	RequestDoer    RequestDoer
 	RequestOptions []RequestOption
-	Reader         func(*http.Response, interface{}) error
+	Reader         Reader
 }
 
 func NewRestClient(host string, options ...ClientOption) (*RestClient, error) {
