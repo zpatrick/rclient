@@ -6,6 +6,7 @@
 
 ## Overview
 RClient is a Go package for interacting with REST APIs. 
+It aims to have a clean, readable API for simple use cases, while having the flexibility to accommodate complex application requirements.
 
 ## Getting Started
 The following snippet shows RClient interacting with Github's API: 
