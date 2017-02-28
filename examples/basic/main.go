@@ -2,13 +2,13 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/zpatrick/rclient"
 	"log"
-	"fmt"
 )
 
 type Repository struct {
-	Name        string `json:"name"`
+	Name string `json:"name"`
 }
 
 func main() {
@@ -19,16 +19,15 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	var repos []Repository
 	path := fmt.Sprintf("/users/%s/repos", *username)
-        if err := client.Get(path, &repos); err != nil {
-                log.Fatal(err)
-        }
+	if err := client.Get(path, &repos); err != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Printf("Repos for %s: \n", *username)
-        for _, r := range repos {
-                fmt.Println(r.Name)
-        }
+	for _, r := range repos {
+		fmt.Println(r.Name)
+	}
 }
-

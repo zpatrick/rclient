@@ -20,10 +20,7 @@ func NewRestClient(host string, options ...ClientOption) (*RestClient, error) {
 		RequestDoer: http.DefaultClient,
 		Reader:      DefaultReader,
 		RequestOptions: []RequestOption{
-			func(req *http.Request) error {
-				req.Header.Add("content-type", "application/json")
-				return nil
-			},
+			ReqWithHeader("content-type", "application/json"),
 		},
 	}
 

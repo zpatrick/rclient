@@ -8,7 +8,7 @@ import (
 )
 
 type Repository struct {
-	Name        string `json:"name,omitempty"`
+	Name string `json:"name,omitempty"`
 }
 
 func main() {
@@ -27,7 +27,7 @@ func main() {
 
 	var repo Repository
 	request := Repository{Name: "my_sample_repo"}
-	
+
 	// first, attempt to create a repo without auth - this will give us a 401
 	if err := client.Post("/user/repos", request, &repo); err != nil {
 		fmt.Printf("Failed to create repository without adding authentication: %v\n", err)
