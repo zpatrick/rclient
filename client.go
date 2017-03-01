@@ -1,26 +1,26 @@
 package rclient
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"net/http"
 )
 
 type RestClient struct {
 	Host           string
-	RequestDoer    RequestDoer
+	Client         *http.Client
+	NewReader         ResponseReaderFactory
+	NewSender         RequestSenderFactory
 	RequestOptions []RequestOption
-	Reader         Reader
 }
 
 func NewRestClient(host string, options ...ClientOption) (*RestClient, error) {
 	r := &RestClient{
-		Host:        host,
-		RequestDoer: http.DefaultClient,
-		Reader:      DefaultReader,
+		Host:   host,
+		Client: http.DefaultClient,
+		NewReader: JSONResponseReaderFactory,
+		NewSender: JSONRequestSenderFactory,
 		RequestOptions: []RequestOption{
-			ReqWithHeader("content-type", "application/json"),
+			Header("content-type", "application/json"),
 		},
 	}
 
@@ -50,27 +50,9 @@ func (r *RestClient) Put(path string, body, v interface{}, options ...RequestOpt
 }
 
 func (r *RestClient) Do(method, path string, body, v interface{}, options ...RequestOption) error {
-	b, err := json.Marshal(body)
-	if err != nil {
-		return err
-	}
-
 	url := fmt.Sprintf("%s%s", r.Host, path)
-	req, err := http.NewRequest(method, url, bytes.NewReader(b))
-	if err != nil {
-		return nil
-	}
-
-	for _, option := range append(r.RequestOptions, options...) {
-		if err := option(req); err != nil {
-			return err
-		}
-	}
-
-	resp, err := r.RequestDoer.Do(req)
-	if err != nil {
-		return err
-	}
-
-	return r.Reader(resp, v)
+	options = append(r.RequestOptions, options...)
+	sender := r.NewSender(r.Client, method, url, body, options...)
+	reader := r.NewReader(v)
+	return Do(sender, reader)
 }

@@ -34,14 +34,14 @@ func main() {
 	}
 
 	// next, try again but add auth to the request
-	if err := client.Post("/user/repos", request, &repo, rclient.ReqWithBasicAuth(*username, *password)); err != nil {
+	if err := client.Post("/user/repos", request, &repo, rclient.BasicAuth(*username, *password)); err != nil {
 		log.Fatalf("Failed to create repository: %v", err)
 	}
 
 	fmt.Printf("Successfully created repository %s\n", repo.Name)
 
 	// or, set basic auth with every request the client makes
-	client, err = rclient.NewRestClient("https://api.github.com", rclient.WithBasicAuth(*username, *password))
+	client, err = rclient.NewRestClient("https://api.github.com", rclient.RequestOptions(rclient.BasicAuth(*username, *password)))
 	if err != nil {
 		log.Fatal(err)
 	}

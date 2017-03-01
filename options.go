@@ -2,62 +2,56 @@ package rclient
 
 import (
 	"net/http"
+	"net/url"
 )
 
 type ClientOption func(*RestClient) error
 
-func WithRequestDoer(doer RequestDoer) ClientOption {
+func Client(client *http.Client) ClientOption {
 	return func(r *RestClient) error {
-		r.RequestDoer = doer
+		r.Client = client
 		return nil
 	}
 }
 
-func WithReader(reader func(*http.Response, interface{}) error) ClientOption {
+func Reader(reader ResponseReaderFactory) ClientOption {
 	return func(r *RestClient) error {
-		r.Reader = reader
+		r.NewReader = reader
 		return nil
 	}
 }
 
-func WithBasicAuth(user, pass string) ClientOption {
+func Sender(sender RequestSenderFactory) ClientOption {
 	return func(r *RestClient) error {
-		r.RequestOptions = append(r.RequestOptions, ReqWithBasicAuth(user, pass))
+		r.NewSender = sender
 		return nil
 	}
 }
 
-func WithHeader(name, val string) func(r *RestClient) error {
+func RequestOptions(options ...RequestOption) ClientOption {
 	return func(r *RestClient) error {
-		r.RequestOptions = append(r.RequestOptions, ReqWithHeader(name, val))
-		return nil
-	}
-}
-
-func WithHeaders(headers map[string]string) ClientOption {
-	return func(r *RestClient) error {
-		r.RequestOptions = append(r.RequestOptions, ReqWithHeaders(headers))
+		r.RequestOptions = append(r.RequestOptions, options...)
 		return nil
 	}
 }
 
 type RequestOption func(*http.Request) error
 
-func ReqWithBasicAuth(user, pass string) RequestOption {
+func BasicAuth(user, pass string) RequestOption {
 	return func(req *http.Request) error {
 		req.SetBasicAuth(user, pass)
 		return nil
 	}
 }
 
-func ReqWithHeader(name, val string) RequestOption {
+func Header(name, val string) RequestOption {
 	return func(req *http.Request) error {
 		req.Header.Add(name, val)
 		return nil
 	}
 }
 
-func ReqWithHeaders(headers map[string]string) RequestOption {
+func Headers(headers map[string]string) RequestOption {
 	return func(req *http.Request) error {
 		for name, val := range headers {
 			req.Header.Add(name, val)
@@ -67,8 +61,9 @@ func ReqWithHeaders(headers map[string]string) RequestOption {
 	}
 }
 
-func ReqWithQuery(params map[string]string) RequestOption {
+func Query(query url.Values) RequestOption {
 	return func(req *http.Request) error {
+		req.URL.RawQuery = query.Encode()
 		return nil
 	}
 }
