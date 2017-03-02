@@ -14,14 +14,14 @@ func Client(client *http.Client) ClientOption {
 	}
 }
 
-func Reader(reader ResponseReaderFactory) ClientOption {
+func ReaderFAC(reader ReaderFactory) ClientOption {
 	return func(r *RestClient) error {
 		r.NewReader = reader
 		return nil
 	}
 }
 
-func Sender(sender RequestSenderFactory) ClientOption {
+func SenderFAC(sender SenderFactory) ClientOption {
 	return func(r *RestClient) error {
 		r.NewSender = sender
 		return nil

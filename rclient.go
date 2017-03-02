@@ -1,10 +1,10 @@
 package rclient
 
-func Do(s RequestSender, r ResponseReader) error {
-	resp, err := s.Send()
+func Do(send Sender, read Reader) error {
+	resp, err := send()
 	if err != nil {
 		return err
 	}
 
-	return r.Read(resp)
+	return read(resp)
 }

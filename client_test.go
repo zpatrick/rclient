@@ -1,7 +1,7 @@
 package rclient
 
 import (
-	//"errors"
+	"errors"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -118,24 +118,44 @@ func TestClientPut(t *testing.T) {
 }
 
 func TestClientDo(t *testing.T) {
-	t.Skip("todo")
+	sFactory := func(c *http.Client, method, url string, body interface{}, options ...RequestOption) Sender {
+		return func() (*http.Response, error) {
+			assert.Equal(t, "POST", method)
+			assert.Equal(t, "https://domain.com/path", url)
+			assert.Equal(t, "body", body)
+			assert.Len(t, options, 0)
+
+			return nil, nil
+		}
+	}
+
+	p := person{Name: "John Doe"}
+	rFactory := func(v interface{}) Reader {
+		return func(*http.Response) error {
+			assert.Equal(t, &p, v)
+
+			return nil
+		}
+	}
+
+	client, err := NewRestClient("https://domain.com", SenderFAC(sFactory), ReaderFAC(rFactory))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := client.Post("/path", "body", &p); err != nil {
+		t.Fatal(err)
+	}
 }
 
-func TestClientOptions(t *testing.T) {
-	t.Skip("todo")
-}
-
-func TestRequestOptions(t *testing.T) {
-	t.Skip("todo")
-}
-
-/*
 func TestClientSenderError(t *testing.T) {
-	doer := DoerFunc(func(req *http.Request) (*http.Response, error) {
-		return nil, errors.New("some error")
-	})
+	sFactory := func(*http.Client, string, string, interface{}, ...RequestOption) Sender {
+		return func() (*http.Response, error) {
+			return nil, errors.New("some error")
+		}
+	}
 
-	client, err := NewRestClient("", WithRequestDoer(doer))
+	client, err := NewRestClient("", SenderFAC(sFactory))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -146,20 +166,24 @@ func TestClientSenderError(t *testing.T) {
 }
 
 func TestClientReaderError(t *testing.T) {
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		write(t, w, 200, person{"John Doe", 30})
+	sFactory := func(*http.Client, string, string, interface{}, ...RequestOption) Sender {
+		return func() (*http.Response, error) {
+			return nil, nil
+		}
 	}
 
-	reader := func(resp *http.Response, v interface{}) error {
-		return errors.New("some error")
+	rFactory := func(interface{}) Reader {
+		return func(*http.Response) error {
+			return errors.New("some error")
+		}
 	}
 
-	client, server := newClientAndServer(t, handler, WithReader(reader))
-	defer server.Close()
+	client, err := NewRestClient("", SenderFAC(sFactory), ReaderFAC(rFactory))
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	var p person
-	if err := client.Get("/path", &p); err == nil {
+	if err := client.Get("/path", nil); err == nil {
 		t.Fatal("Error was nil!")
 	}
 }
-*/

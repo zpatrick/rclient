@@ -8,20 +8,18 @@ import (
 type RestClient struct {
 	Host           string
 	Client         *http.Client
-	NewReader         ResponseReaderFactory
-	NewSender         RequestSenderFactory
+	NewReader      ReaderFactory
+	NewSender      SenderFactory
 	RequestOptions []RequestOption
 }
 
 func NewRestClient(host string, options ...ClientOption) (*RestClient, error) {
 	r := &RestClient{
-		Host:   host,
-		Client: http.DefaultClient,
-		NewReader: JSONResponseReaderFactory,
-		NewSender: JSONRequestSenderFactory,
-		RequestOptions: []RequestOption{
-			Header("content-type", "application/json"),
-		},
+		Host:           host,
+		Client:         http.DefaultClient,
+		NewReader:      JSONReaderFactory,
+		NewSender:      JSONSenderFactory,
+		RequestOptions: []RequestOption{},
 	}
 
 	for _, option := range options {

@@ -7,20 +7,12 @@ import (
 	"net/http"
 )
 
-type ResponseReader interface {
-	Read(*http.Response) error
-}
+type Reader func(resp *http.Response) error
 
-type ResponseReaderFunc func(*http.Response) error
+type ReaderFactory func(v interface{}) Reader
 
-func (r ResponseReaderFunc) Read(resp *http.Response) error {
-	return r(resp)
-}
-
-type ResponseReaderFactory func(v interface{}) ResponseReader
-
-func JSONResponseReaderFactory(v interface{}) ResponseReader {
-	return ResponseReaderFunc(func(resp *http.Response) error {
+func JSONReaderFactory(v interface{}) Reader {
+	return func(resp *http.Response) error {
 		defer resp.Body.Close()
 
 		switch {
@@ -31,5 +23,5 @@ func JSONResponseReaderFactory(v interface{}) ResponseReader {
 		default:
 			return json.NewDecoder(resp.Body).Decode(v)
 		}
-	})
+	}
 }
