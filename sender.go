@@ -8,9 +8,9 @@ import (
 
 type Sender func() (*http.Response, error)
 
-type SenderFactory func(client *http.Client, method, url string, body interface{}, options ...RequestOption) Sender
+type SenderFactory func(client Doer, method, url string, body interface{}, options ...RequestOption) Sender
 
-func JSONSenderFactory(client *http.Client, method, url string, body interface{}, options ...RequestOption) Sender {
+func JSONSenderFactory(client Doer, method, url string, body interface{}, options ...RequestOption) Sender {
 	return func() (*http.Response, error) {
 		b := new(bytes.Buffer)
 		if err := json.NewEncoder(b).Encode(body); err != nil {

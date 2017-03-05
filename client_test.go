@@ -118,7 +118,7 @@ func TestClientPut(t *testing.T) {
 }
 
 func TestClientDo(t *testing.T) {
-	sFactory := func(c *http.Client, method, url string, body interface{}, options ...RequestOption) Sender {
+	sFactory := func(c Doer, method, url string, body interface{}, options ...RequestOption) Sender {
 		return func() (*http.Response, error) {
 			assert.Equal(t, "POST", method)
 			assert.Equal(t, "https://domain.com/path", url)
@@ -149,7 +149,7 @@ func TestClientDo(t *testing.T) {
 }
 
 func TestClientSenderError(t *testing.T) {
-	sFactory := func(*http.Client, string, string, interface{}, ...RequestOption) Sender {
+	sFactory := func(Doer, string, string, interface{}, ...RequestOption) Sender {
 		return func() (*http.Response, error) {
 			return nil, errors.New("some error")
 		}
@@ -166,7 +166,7 @@ func TestClientSenderError(t *testing.T) {
 }
 
 func TestClientReaderError(t *testing.T) {
-	sFactory := func(*http.Client, string, string, interface{}, ...RequestOption) Sender {
+	sFactory := func(Doer, string, string, interface{}, ...RequestOption) Sender {
 		return func() (*http.Response, error) {
 			return nil, nil
 		}

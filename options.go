@@ -7,7 +7,7 @@ import (
 
 type ClientOption func(*RestClient) error
 
-func Client(client *http.Client) ClientOption {
+func Client(client Doer) ClientOption {
 	return func(r *RestClient) error {
 		r.Client = client
 		return nil

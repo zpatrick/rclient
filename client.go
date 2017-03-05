@@ -7,7 +7,7 @@ import (
 
 type RestClient struct {
 	Host           string
-	Client         *http.Client
+	Client         Doer
 	NewReader      ReaderFactory
 	NewSender      SenderFactory
 	RequestOptions []RequestOption
