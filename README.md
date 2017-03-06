@@ -43,7 +43,19 @@ func main() {
 ```
 
 ## Request Options
-Requests can be configured using the [Request Options](https://godoc.org/github.com/zpatrick/rclient#RequestOption) described below.
+Requests can be configured using a [Request Option](https://godoc.org/github.com/zpatrick/rclient#RequestOption).
+A `RequestOption` is simply a function that manipulates an `http.Request`.
+You can create request options like so:
+```
+setProto := func(req *http.Request) error {
+    req.Proto = "HTTP/1.0"
+    return nil
+}
+
+client.Get("/path", &v, setProto)
+```
+
+The built-in request options are described below.
 
 #### Header / Headers
 The `Header()` and `Headers()` options add header(s) to a `*http.Request`.
@@ -84,7 +96,7 @@ The `RestClient` can be configured using the [Client Options](https://godoc.org/
 The `Doer()` option sets which object calls `*http.Request` objects and returns `*http.Response` objects. 
 This is the `http.DefaultClient` by default, and it can be set to anything that satisfies the [RequestDoer](https://godoc.org/github.com/zpatrick/rclient#RequestDoer) interface. 
 ```
-client, err := rclient.NewRestClient("https://api.github.com", rclient.Doer(http.DefaultClient))
+client, err := rclient.NewRestClient("https://api.github.com", rclient.Doer(&http.Client{}))
 ```
 
 #### Request Options

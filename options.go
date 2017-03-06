@@ -5,7 +5,7 @@ import (
 	"net/url"
 )
 
-type ClientOption func(*RestClient) error
+type ClientOption func(client *RestClient) error
 
 func Builder(builder RequestBuilder) ClientOption {
 	return func(r *RestClient) error {
@@ -35,7 +35,7 @@ func RequestOptions(options ...RequestOption) ClientOption {
 	}
 }
 
-type RequestOption func(*http.Request) error
+type RequestOption func(req *http.Request) error
 
 func BasicAuth(user, pass string) RequestOption {
 	return func(req *http.Request) error {
