@@ -117,7 +117,7 @@ The `Builder()` option sets which function builds `*http.Request` objects.
 This is the [BuildJSONRequest](https://godoc.org/github.com/zpatrick/rclient#BuildJSONRequest) function by default, and it can be set to any [RequestBuilder](https://godoc.org/github.com/zpatrick/rclient#RequestBuilder) function.
 ```
 builder := func(method, url string, body interface{}, options ...RequestOption) (*http.Request, error){
-    req := http.NewRequest(method, url, nil)
+    req, _ := http.NewRequest(method, url, nil)
     
     for _, option := range options {
 		if err := option(req); err != nil {

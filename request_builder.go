@@ -6,8 +6,17 @@ import (
 	"net/http"
 )
 
+// A RequestBuilder creates a *http.Request from the given parameters.
+// It is important that each option gets added to the generated request:
+//  req, _ := http.NewRequest(...)
+//  for _, option := range options
+//      if err := option(req); err != nil {
+//          return nil, err
+//      }
+//  }
 type RequestBuilder func(method, url string, body interface{}, options ...RequestOption) (*http.Request, error)
 
+// BuildJSONRequest creates a new *http.Request with the specified method, url and body in JSON format.
 func BuildJSONRequest(method, url string, body interface{}, options ...RequestOption) (*http.Request, error) {
 	b := new(bytes.Buffer)
 	if err := json.NewEncoder(b).Encode(body); err != nil {
