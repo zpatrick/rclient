@@ -136,7 +136,7 @@ func TestClientDo(t *testing.T) {
 }
 
 func TestClientBuilderError(t *testing.T) {
-	builder := func(method, url string, body interface{}, options ...RequestOption) (*http.Request, error) {
+	builder := func(string, string, interface{}, ...RequestOption) (*http.Request, error) {
 		return nil, errors.New("some error")
 	}
 
@@ -151,7 +151,7 @@ func TestClientBuilderError(t *testing.T) {
 }
 
 func TestClientDoerError(t *testing.T) {
-	builder := func(method, url string, body interface{}, options ...RequestOption) (*http.Request, error) {
+	builder := func(string, string, interface{}, ...RequestOption) (*http.Request, error) {
 		return nil, nil
 	}
 
@@ -170,7 +170,7 @@ func TestClientDoerError(t *testing.T) {
 }
 
 func TestClientReaderError(t *testing.T) {
-	builder := func(method, url string, body interface{}, options ...RequestOption) (*http.Request, error) {
+	builder := func(string, string, interface{}, ...RequestOption) (*http.Request, error) {
 		return nil, nil
 	}
 
@@ -178,7 +178,7 @@ func TestClientReaderError(t *testing.T) {
 		return nil, nil
 	})
 
-	reader := func(resp *http.Response, v interface{}) error {
+	reader := func(*http.Response, interface{}) error {
 		return errors.New("some error")
 	}
 
