@@ -10,7 +10,7 @@ import (
 // A ResponseReader attempts to read a *http.Response into v.
 type ResponseReader func(resp *http.Response, v interface{}) error
 
-// ReadJSONResponse attempts to marshal the response body into v 
+// ReadJSONResponse attempts to marshal the response body into v
 // if and only if the response StatusCode is in the 200 range.
 // Otherwise, and error is thrown.
 // It assumes the response body is in JSON format.
