@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-type Repository struct {
+type repository struct {
 	Name string `json:"name"`
 }
 
@@ -20,7 +20,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var repos []Repository
+	var repos []repository
 	path := fmt.Sprintf("/users/%s/repos", *username)
 	if err := client.Get(path, &repos); err != nil {
 		log.Fatal(err)

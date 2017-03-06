@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-type Repository struct {
+type repository struct {
 	Name string `json:"name,omitempty"`
 }
 
@@ -25,8 +25,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var repo Repository
-	request := Repository{Name: "my_sample_repo"}
+	var repo repository
+	request := repository{Name: "my_sample_repo"}
 
 	// add auth to the request
 	if err := client.Post("/user/repos", request, &repo, rclient.BasicAuth(*username, *password)); err != nil {
