@@ -93,14 +93,15 @@ client.Get("/path?name=John&age=35", &v)
 The `RestClient` can be configured using the [Client Options](https://godoc.org/github.com/zpatrick/rclient#ClientOption) described below.
 
 #### Doer
-The `Doer()` option sets which object calls `*http.Request` objects and returns `*http.Response` objects. 
+The `Doer()` option sets the `RequestDoer` field on the `RestClient`. 
 This is the `http.DefaultClient` by default, and it can be set to anything that satisfies the [RequestDoer](https://godoc.org/github.com/zpatrick/rclient#RequestDoer) interface. 
 ```
 client, err := rclient.NewRestClient("https://api.github.com", rclient.Doer(&http.Client{}))
 ```
 
 #### Request Options
-The `RequestOptions()` option sets options on each request made by the `RestClient`.
+The `RequestOptions()` option sets the `RequestOptions` field on the `RestClient`.
+This will manipulate each request made by the `RestClient`.
 This can be any of the options described in the [Request Options](#RequestOptions) section. 
 A typical use-case would be adding headers for each request.
 ```
@@ -109,16 +110,16 @@ options := []rclient.RequestOption{
     rclient.Header("token", "abc123"),
 }
 
-client, err := rclient.NewRestClient("https://api.github.com", rclient.RequestOptions(options))
+client, err := rclient.NewRestClient("https://api.github.com", rclient.RequestOptions(options...))
 ```
 
 #### Builder
-The `Builder()` option sets which function builds `*http.Request` objects. 
+The `Builder()` option sets the `RequestBuilder` field on the `RestClient`.
+This field is responsible for building `*http.Request` objects. 
 This is the [BuildJSONRequest](https://godoc.org/github.com/zpatrick/rclient#BuildJSONRequest) function by default, and it can be set to any [RequestBuilder](https://godoc.org/github.com/zpatrick/rclient#RequestBuilder) function.
 ```
 builder := func(method, url string, body interface{}, options ...RequestOption) (*http.Request, error){
     req, _ := http.NewRequest(method, url, nil)
-    
     for _, option := range options {
 		if err := option(req); err != nil {
 			return nil, err
@@ -132,7 +133,8 @@ client, err := rclient.NewRestClient("https://api.github.com", rclient.Builder(b
 ```
 
 #### Reader
-The `Reader()` option sets which function reads `*http.Response` objects. 
+The `Reader()` option sets the `ResponseReader` field on the `RestClient`.
+This field is responsible for reading `*http.Response` objects. 
 This is the [ReadJSONResponse](https://godoc.org/github.com/zpatrick/rclient#ReadJSONResponse) function by default, and it can be set to any [ResponseReader](https://godoc.org/github.com/zpatrick/rclient#ResponseReader) function.
 ```
 reader := func(resp *http.Response, v interface{}) error{
