@@ -14,6 +14,12 @@ type person struct {
 	Age  int
 }
 
+func readPerson(t *testing.T, r *http.Request) person {
+	var p person
+	read(t, r, &p)
+	return p
+}
+
 func newClientAndServer(t *testing.T, handler http.HandlerFunc, options ...ClientOption) (*RestClient, *httptest.Server) {
 	server := httptest.NewServer(handler)
 	client, err := NewRestClient(server.URL, options...)

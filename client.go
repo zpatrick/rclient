@@ -7,18 +7,18 @@ import (
 
 type RestClient struct {
 	Host           string
-	Client         Doer
-	NewReader      ReaderFactory
-	NewSender      SenderFactory
+	RequestBuilder RequestBuilder
+	RequestDoer    RequestDoer
+	ResponseReader ResponseReader
 	RequestOptions []RequestOption
 }
 
 func NewRestClient(host string, options ...ClientOption) (*RestClient, error) {
 	r := &RestClient{
 		Host:           host,
-		Client:         http.DefaultClient,
-		NewReader:      JSONReaderFactory,
-		NewSender:      JSONSenderFactory,
+		RequestBuilder: BuildJSONRequest,
+		RequestDoer:    http.DefaultClient,
+		ResponseReader: ReadJSONResponse,
 		RequestOptions: []RequestOption{},
 	}
 
@@ -50,7 +50,16 @@ func (r *RestClient) Put(path string, body, v interface{}, options ...RequestOpt
 func (r *RestClient) Do(method, path string, body, v interface{}, options ...RequestOption) error {
 	url := fmt.Sprintf("%s%s", r.Host, path)
 	options = append(r.RequestOptions, options...)
-	sender := r.NewSender(r.Client, method, url, body, options...)
-	reader := r.NewReader(v)
-	return Do(sender, reader)
+
+	req, err := r.RequestBuilder(method, url, body, options...)
+	if err != nil {
+		return err
+	}
+
+	resp, err := r.RequestDoer.Do(req)
+	if err != nil {
+		return err
+	}
+
+	return r.ResponseReader(resp, v)
 }

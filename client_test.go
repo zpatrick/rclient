@@ -27,13 +27,9 @@ func TestClientDeleteWithBody(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "DELETE", r.Method)
 		assert.Equal(t, "/people", r.URL.Path)
+		assert.Equal(t, person{"John Doe", 30}, readPerson(t, r))
 
-		var p person
-		read(t, r, &p)
-
-		assert.Equal(t, person{"John Doe", 30}, p)
-
-		write(t, w, 200, p)
+		write(t, w, 200, person{"John Doe", 30})
 	}
 
 	client, server := newClientAndServer(t, handler)
@@ -71,13 +67,9 @@ func TestClientPost(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "POST", r.Method)
 		assert.Equal(t, "/people", r.URL.Path)
+		assert.Equal(t, person{"John Doe", 30}, readPerson(t, r))
 
-		var p person
-		read(t, r, &p)
-
-		assert.Equal(t, person{"John Doe", 30}, p)
-
-		write(t, w, 201, p)
+		write(t, w, 201, person{"John Doe", 30})
 	}
 
 	client, server := newClientAndServer(t, handler)
@@ -96,13 +88,9 @@ func TestClientPut(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "PUT", r.Method)
 		assert.Equal(t, "/people/john", r.URL.Path)
+		assert.Equal(t, person{"John Do", 35}, readPerson(t, r))
 
-		var p person
-		read(t, r, &p)
-
-		assert.Equal(t, person{"John Do", 35}, p)
-
-		write(t, w, 200, p)
+		write(t, w, 200, person{"John Do", 35})
 	}
 
 	client, server := newClientAndServer(t, handler)
@@ -118,44 +106,60 @@ func TestClientPut(t *testing.T) {
 }
 
 func TestClientDo(t *testing.T) {
-	sFactory := func(c Doer, method, url string, body interface{}, options ...RequestOption) Sender {
-		return func() (*http.Response, error) {
-			assert.Equal(t, "POST", method)
-			assert.Equal(t, "https://domain.com/path", url)
-			assert.Equal(t, "body", body)
-			assert.Len(t, options, 0)
+	builder := func(method, url string, body interface{}, options ...RequestOption) (*http.Request, error) {
+		assert.Equal(t, "POST", method)
+		assert.Equal(t, "https://domain.com/path", url)
+		assert.Equal(t, "body", body)
+		assert.Len(t, options, 0)
 
-			return nil, nil
-		}
+		return nil, nil
 	}
 
-	p := person{Name: "John Doe"}
-	rFactory := func(v interface{}) Reader {
-		return func(*http.Response) error {
-			assert.Equal(t, &p, v)
+	doer := RequestDoerFunc(func(*http.Request) (*http.Response, error) {
+		return nil, nil
+	})
 
-			return nil
-		}
+	var p person
+	reader := func(resp *http.Response, v interface{}) error {
+		assert.Equal(t, p, v)
+		return nil
 	}
 
-	client, err := NewRestClient("https://domain.com", SenderFAC(sFactory), ReaderFAC(rFactory))
+	client, err := NewRestClient("https://domain.com", Builder(builder), Doer(doer), Reader(reader))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := client.Post("/path", "body", &p); err != nil {
+	if err := client.Post("/path", "body", p); err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestClientSenderError(t *testing.T) {
-	sFactory := func(Doer, string, string, interface{}, ...RequestOption) Sender {
-		return func() (*http.Response, error) {
-			return nil, errors.New("some error")
-		}
+func TestClientBuilderError(t *testing.T) {
+	builder := func(method, url string, body interface{}, options ...RequestOption) (*http.Request, error) {
+		return nil, errors.New("some error")
 	}
 
-	client, err := NewRestClient("", SenderFAC(sFactory))
+	client, err := NewRestClient("", Builder(builder))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := client.Get("/path", nil); err == nil {
+		t.Fatal("Error was nil!")
+	}
+}
+
+func TestClientDoerError(t *testing.T) {
+	builder := func(method, url string, body interface{}, options ...RequestOption) (*http.Request, error) {
+		return nil, nil
+	}
+
+	doer := RequestDoerFunc(func(*http.Request) (*http.Response, error) {
+		return nil, errors.New("some error")
+	})
+
+	client, err := NewRestClient("", Builder(builder), Doer(doer))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -166,19 +170,19 @@ func TestClientSenderError(t *testing.T) {
 }
 
 func TestClientReaderError(t *testing.T) {
-	sFactory := func(Doer, string, string, interface{}, ...RequestOption) Sender {
-		return func() (*http.Response, error) {
-			return nil, nil
-		}
+	builder := func(method, url string, body interface{}, options ...RequestOption) (*http.Request, error) {
+		return nil, nil
 	}
 
-	rFactory := func(interface{}) Reader {
-		return func(*http.Response) error {
-			return errors.New("some error")
-		}
+	doer := RequestDoerFunc(func(*http.Request) (*http.Response, error) {
+		return nil, nil
+	})
+
+	reader := func(resp *http.Response, v interface{}) error {
+		return errors.New("some error")
 	}
 
-	client, err := NewRestClient("", SenderFAC(sFactory), ReaderFAC(rFactory))
+	client, err := NewRestClient("", Builder(builder), Doer(doer), Reader(reader))
 	if err != nil {
 		t.Fatal(err)
 	}

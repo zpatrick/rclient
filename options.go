@@ -7,23 +7,23 @@ import (
 
 type ClientOption func(*RestClient) error
 
-func Client(client Doer) ClientOption {
+func Builder(builder RequestBuilder) ClientOption {
 	return func(r *RestClient) error {
-		r.Client = client
+		r.RequestBuilder = builder
 		return nil
 	}
 }
 
-func ReaderFAC(reader ReaderFactory) ClientOption {
+func Doer(doer RequestDoer) ClientOption {
 	return func(r *RestClient) error {
-		r.NewReader = reader
+		r.RequestDoer = doer
 		return nil
 	}
 }
 
-func SenderFAC(sender SenderFactory) ClientOption {
+func Reader(reader ResponseReader) ClientOption {
 	return func(r *RestClient) error {
-		r.NewSender = sender
+		r.ResponseReader = reader
 		return nil
 	}
 }
