@@ -63,6 +63,27 @@ func TestClientGet(t *testing.T) {
 	assert.Equal(t, person{"John Doe", 30}, p)
 }
 
+func TestClientPatch(t *testing.T) {
+        handler := func(w http.ResponseWriter, r *http.Request) {
+                assert.Equal(t, "PATCH", r.Method)
+                assert.Equal(t, "/people/john", r.URL.Path)
+                assert.Equal(t, person{"John Do", 35}, readPerson(t, r))
+
+                write(t, w, 200, person{"John Do", 35})
+        }
+
+        client, server := newClientAndServer(t, handler)
+        defer server.Close()
+
+        var p person
+        request := person{Name: "John Do", Age: 35}
+        if err := client.Patch("/people/john", request, &p); err != nil {
+                t.Error(err)
+        }
+
+        assert.Equal(t, person{"John Do", 35}, p)
+}
+
 func TestClientPost(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "POST", r.Method)

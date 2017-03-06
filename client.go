@@ -39,6 +39,10 @@ func (r *RestClient) Get(path string, v interface{}, options ...RequestOption) e
 	return r.Do("GET", path, nil, v, options...)
 }
 
+func (r *RestClient) Patch(path string, body, v interface{}, options ...RequestOption) error {
+	return r.Do("PATCH", path, body, v, options...)
+}
+
 func (r *RestClient) Post(path string, body, v interface{}, options ...RequestOption) error {
 	return r.Do("POST", path, body, v, options...)
 }
