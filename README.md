@@ -5,11 +5,16 @@
 [![Go Doc](https://godoc.org/github.com/zpatrick/rclient?status.svg)](https://godoc.org/github.com/zpatrick/rclient)
 
 ## Overview
-RClient is a Go package for interacting with REST APIs. 
-It aims to have a clean, readable API for simple use cases, while having the flexibility to accommodate complex application requirements.
+RClient is a Go package for interacting with REST APIs.
+While it is often recommended to just use the standard Go library when interacting with an API, 
+this all-to-often leads to duplicate code across different projects. 
+While there are already great Go rest clients out there ([sling](https://github.com/dghubble/sling), [resty](https://github.com/go-resty/resty), etc.), I find their design to be either too verbose or inflexible.
+RClient is my attempt to make a Go rest client that is simple, flexible, and small. 
+
 
 ## Getting Started
-The following snippet shows RClient interacting with Github's API: 
+Checkout the [Examples](https://github.com/zpatrick/rclient/tree/master/examples) folder for some working examples.
+The following snippet shows RClient interacting with Github's API:
 ```
 package main
 
@@ -35,6 +40,95 @@ func main() {
 
         log.Println(repos)
 }
+```
+
+## Request Options
+Requests can be configured using the [Request Options](https://godoc.org/github.com/zpatrick/rclient#RequestOption) described below.
+
+#### Header / Headers
+The `Header()` and `Headers()` options add header(s) to a `*http.Request`.
+```
+// add a single header
+client.Get("/path", &v, rclient.Header("name", "val"))
+
+// add multiple headers
+client.Get("/path", &v, rclient.Header("name1", "val1"), rclient.Header("name2", "val2"))
+client.Get("/path", &v, rclient.Headers(map[string]string{"name1": "val1", "name2":"val2"}))
+```
+
+#### Basic Auth
+The `BasicAuth()` option adds basic auth to a `*http.Request`.
+```
+client.Get("/path", &v, rclient.BasicAuth("user", "pass"))
+```
+
+#### Query
+The `Query()` options adds a query to a `*http.Request`.
+```
+query := url.Values{}
+query.Add("name", "John")
+query.Add("age", "35")
+
+client.Get("/path", &v, rclient.Query(query))
+```
+
+**NOTE**: This can also be accomplished by adding the raw query to the `path` argument
+```
+client.Get("/path?name=John&age=35", &v)
+```
+
+## Client Configuration
+The `RestClient` can be configured using the [Client Options](https://godoc.org/github.com/zpatrick/rclient#ClientOption) described below.
+
+#### Doer
+The `Doer()` option sets which object calls `*http.Request` objects and returns `*http.Response` objects. 
+This is the `http.DefaultClient` by default, and it can be set to anything that satisfies the [RequestDoer](https://godoc.org/github.com/zpatrick/rclient#RequestDoer) interface. 
+```
+client, err := rclient.NewRestClient("https://api.github.com", rclient.Doer(http.DefaultClient))
+```
+
+#### Request Options
+The `RequestOptions()` option sets options on each request made by the `RestClient`.
+This can be any of the options described in the [Request Options](#RequestOptions) section. 
+A typical use-case would be adding headers for each request.
+```
+options := []rclient.RequestOption{
+    rclient.Header("name", "John Doe").
+    rclient.Header("token", "abc123"),
+}
+
+client, err := rclient.NewRestClient("https://api.github.com", rclient.RequestOptions(options))
+```
+
+#### Builder
+The `Builder()` option sets which function builds `*http.Request` objects. 
+This is the [BuildJSONRequest](https://godoc.org/github.com/zpatrick/rclient#BuildJSONRequest) function by default, and it can be set to any [RequestBuilder](https://godoc.org/github.com/zpatrick/rclient#RequestBuilder) function.
+```
+builder := func(method, url string, body interface{}, options ...RequestOption) (*http.Request, error){
+    req := http.NewRequest(method, url, nil)
+    
+    for _, option := range options {
+		if err := option(req); err != nil {
+			return nil, err
+		}
+	}
+	
+    return nil, errors.New("I forgot to add a body to the request!")
+}
+
+client, err := rclient.NewRestClient("https://api.github.com", rclient.Builder(builder))
+```
+
+#### Reader
+The `Reader()` option sets which function reads `*http.Response` objects. 
+This is the [ReadJSONResponse](https://godoc.org/github.com/zpatrick/rclient#ReadJSONResponse) function by default, and it can be set to any [ResponseReader](https://godoc.org/github.com/zpatrick/rclient#ResponseReader) function.
+```
+reader := func(resp *http.Response, v interface{}) error{
+    defer resp.Body.Close()
+    return json.NewDecoder(resp.Body).Decode(v)
+}
+
+client, err := rclient.NewRestClient("https://api.github.com", rclient.Reader(reader))
 ```
 
 # License
