@@ -59,7 +59,7 @@ func Header(name, val string) RequestOption {
 	}
 }
 
-// Headers adds the specified names and values as headers to a reques.t
+// Headers adds the specified names and values as headers to a request
 func Headers(headers map[string]string) RequestOption {
 	return func(req *http.Request) error {
 		for name, val := range headers {
