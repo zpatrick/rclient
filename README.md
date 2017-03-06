@@ -102,7 +102,7 @@ client, err := rclient.NewRestClient("https://api.github.com", rclient.Doer(&htt
 #### Request Options
 The `RequestOptions()` option sets the `RequestOptions` field on the `RestClient`.
 This will manipulate each request made by the `RestClient`.
-This can be any of the options described in the [Request Options](#RequestOptions) section. 
+This can be any of the options described in the [Request Options](#request-options) section. 
 A typical use-case would be adding headers for each request.
 ```
 options := []rclient.RequestOption{
