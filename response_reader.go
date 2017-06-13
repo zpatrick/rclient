@@ -3,7 +3,6 @@ package rclient
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/zpatrick/go-series"
 	"net/http"
 )
 
@@ -18,7 +17,7 @@ func ReadJSONResponse(resp *http.Response, v interface{}) error {
 	defer resp.Body.Close()
 
 	switch {
-	case !series.Ints(200, 299).Contains(resp.StatusCode):
+	case resp.StatusCode < 200, resp.StatusCode > 299:
 		return fmt.Errorf("Invalid status code: %d", resp.StatusCode)
 	case v == nil:
 		return nil
