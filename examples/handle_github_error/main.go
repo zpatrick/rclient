@@ -38,10 +38,7 @@ func githubResponseReader(resp *http.Response, v interface{}) error {
 }
 
 func main() {
-	client, err := rclient.NewRestClient("https://api.github.com", rclient.Reader(githubResponseReader))
-	if err != nil {
-		log.Fatal(err)
-	}
+	client := rclient.NewRestClient("https://api.github.com", rclient.Reader(githubResponseReader))
 
 	var repo repository
 	if err := client.Get("/repos/zpatrick/invalid_repo_name", &repo); err != nil {

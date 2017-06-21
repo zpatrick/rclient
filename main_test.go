@@ -22,10 +22,7 @@ func readPerson(t *testing.T, r *http.Request) person {
 
 func newClientAndServer(t *testing.T, handler http.HandlerFunc, options ...ClientOption) (*RestClient, *httptest.Server) {
 	server := httptest.NewServer(handler)
-	client, err := NewRestClient(server.URL, options...)
-	if err != nil {
-		t.Fatal(err)
-	}
+	client := NewRestClient(server.URL, options...)
 
 	return client, server
 }

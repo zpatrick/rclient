@@ -20,10 +20,7 @@ func main() {
 		log.Fatal("username and password are required")
 	}
 
-	client, err := rclient.NewRestClient("https://api.github.com")
-	if err != nil {
-		log.Fatal(err)
-	}
+	client := rclient.NewRestClient("https://api.github.com")
 
 	var repo repository
 	request := repository{Name: "my_sample_repo"}
@@ -36,10 +33,7 @@ func main() {
 	fmt.Printf("Successfully created repository %s\n", repo.Name)
 
 	// also, you can set basic auth for each request the client makes
-	client, err = rclient.NewRestClient("https://api.github.com", rclient.RequestOptions(rclient.BasicAuth(*username, *password)))
-	if err != nil {
-		log.Fatal(err)
-	}
+	client = rclient.NewRestClient("https://api.github.com", rclient.RequestOptions(rclient.BasicAuth(*username, *password)))
 
 	path := fmt.Sprintf("/repos/%s/%s", *username, repo.Name)
 	if err := client.Delete(path, nil, nil); err != nil {

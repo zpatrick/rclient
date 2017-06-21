@@ -15,10 +15,7 @@ func main() {
 	username := flag.String("u", "zpatrick", "username for your github account")
 	flag.Parse()
 
-	client, err := rclient.NewRestClient("https://api.github.com")
-	if err != nil {
-		log.Fatal(err)
-	}
+	client := rclient.NewRestClient("https://api.github.com")
 
 	var repos []repository
 	path := fmt.Sprintf("/users/%s/repos", *username)

@@ -144,11 +144,7 @@ func TestClientDo(t *testing.T) {
 		return nil
 	}
 
-	client, err := NewRestClient("https://domain.com", Builder(builder), Doer(doer), Reader(reader))
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	client := NewRestClient("https://domain.com", Builder(builder), Doer(doer), Reader(reader))
 	if err := client.Post("/path", "body", p); err != nil {
 		t.Fatal(err)
 	}
@@ -159,11 +155,7 @@ func TestClientBuilderError(t *testing.T) {
 		return nil, errors.New("some error")
 	}
 
-	client, err := NewRestClient("", Builder(builder))
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	client := NewRestClient("", Builder(builder))
 	if err := client.Get("/path", nil); err == nil {
 		t.Fatal("Error was nil!")
 	}
@@ -178,11 +170,7 @@ func TestClientDoerError(t *testing.T) {
 		return nil, errors.New("some error")
 	})
 
-	client, err := NewRestClient("", Builder(builder), Doer(doer))
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	client := NewRestClient("", Builder(builder), Doer(doer))
 	if err := client.Get("/path", nil); err == nil {
 		t.Fatal("Error was nil!")
 	}
@@ -201,11 +189,7 @@ func TestClientReaderError(t *testing.T) {
 		return errors.New("some error")
 	}
 
-	client, err := NewRestClient("", Builder(builder), Doer(doer), Reader(reader))
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	client := NewRestClient("", Builder(builder), Doer(doer), Reader(reader))
 	if err := client.Get("/path", nil); err == nil {
 		t.Fatal("Error was nil!")
 	}
