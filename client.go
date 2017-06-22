@@ -16,7 +16,7 @@ type RestClient struct {
 
 // NewRestClient returns a new RestClient with all of the default fields.
 // Any of the default fields can be changed with the options param.
-func NewRestClient(host string, options ...ClientOption) *RestClient{
+func NewRestClient(host string, options ...ClientOption) *RestClient {
 	r := &RestClient{
 		Host:           host,
 		RequestBuilder: BuildJSONRequest,

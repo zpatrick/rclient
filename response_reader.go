@@ -2,7 +2,6 @@ package rclient
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -18,10 +17,14 @@ func ReadJSONResponse(resp *http.Response, v interface{}) error {
 
 	switch {
 	case resp.StatusCode < 200, resp.StatusCode > 299:
-		return fmt.Errorf("Invalid status code: %d", resp.StatusCode)
+		return NewResponseErrorf(resp, "Invalid status code: %d", resp.StatusCode)
 	case v == nil:
 		return nil
 	default:
-		return json.NewDecoder(resp.Body).Decode(v)
+		if err := json.NewDecoder(resp.Body).Decode(v); err != nil {
+			return NewResponseError(resp, err.Error())
+		}
 	}
+
+	return nil
 }
