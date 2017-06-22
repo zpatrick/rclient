@@ -6,7 +6,7 @@ import (
 )
 
 // A ClientOption configures a *RestClient.
-type ClientOption func(client *RestClient) 
+type ClientOption func(client *RestClient)
 
 // Builder sets the RequestBuilder field of a RestClient.
 func Builder(builder RequestBuilder) ClientOption {
