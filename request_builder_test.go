@@ -2,10 +2,11 @@ package rclient
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBuildJSONRequest(t *testing.T) {
@@ -25,6 +26,15 @@ func TestBuildJSONRequest(t *testing.T) {
 	}
 
 	assert.Equal(t, "\"body\"\n", string(body))
+}
+
+func TestBuildJSONRequestNoBody(t *testing.T) {
+	req, err := BuildJSONRequest("GET", "www.domain.com/path", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, "", req.Header.Get("content-type"))
 }
 
 func TestBuildJSONRequest_optionError(t *testing.T) {
