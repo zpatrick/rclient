@@ -32,6 +32,8 @@ func main() {
 	}
 
 	fmt.Printf("Successfully created repository %s\n", repo.Name)
+	fmt.Printf("Press the Enter Key to delete this repository: ")
+    	fmt.Scanln()
 
 	// also, you can set basic auth for each request the client makes
 	client = rclient.NewRestClient("https://api.github.com", rclient.RequestOptions(rclient.BasicAuth(*username, *password)))
